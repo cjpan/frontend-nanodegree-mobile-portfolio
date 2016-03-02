@@ -422,6 +422,7 @@ var resizePizzas = function(size) {
   changeSliderLabel(size);
 
   // Iterates through pizza elements on the page and changes their widths
+  // use relative width to simplify the width calculation in the loop
   function changePizzaSizes(size) {
     var newwidth = 0;
 
@@ -458,6 +459,7 @@ var resizePizzas = function(size) {
 window.performance.mark("mark_start_generating"); // collect timing data
 
 // This for-loop actually creates and appends all of the pizzas when the page loads
+// move this part out of the loop
 var pizzasDiv = document.getElementById("randomPizzas");
 for (var i = 2; i < 100; i++) { 
   pizzasDiv.appendChild(pizzaElementGenerator(i));
@@ -488,25 +490,14 @@ function logAverageFrame(times) {   // times is the array of User Timing measure
 
 // Moves the sliding background pizzas based on scroll position
 
-//sets global object value to initial false
-// window.animating = false;
-
-//checks if global animating object is true 
-function pizzasAnimating() {
-  if (!window.animating) {
-    window.animating = true;
-//runs updatePositions function every time RAF results in true
-    window.requestAnimationFrame(updatePositions); 
-  }
-}
-
-// window.requestAnimationFrame(updatePositions);
-
 function updatePositions() {
   frame++;
   window.performance.mark("mark_start_frame");
 
+  // use Get ElementsByClassName to replace querySelectorAll
   var items = document.getElementsByClassName('mover');
+  
+  // To do part of calculations out of the loop
   var halfScreenWidth = ((window.innerWidth > 0) ? window.innerWidth : screen.width) / 2; // get window.innerWidth and divide by half
   var scrollTop = document.body.scrollTop;
   var phases = [];
@@ -517,7 +508,7 @@ function updatePositions() {
 
   for (var i = 0; i < items.length; i++) {
     var phase = phases[i % 5];
-    // items[i].style.transform = 'translateX(' + items[i].basicLeft + 100 * phase + 'px)';
+    // use transform to avoid layout calculation
     items[i].style.transform = 'translateX('+(items[i].basicLeft + 100 * phase - halfScreenWidth) + 'px)'
   }
 
@@ -529,7 +520,6 @@ function updatePositions() {
     var timesToUpdatePosition = window.performance.getEntriesByName("measure_frame_duration");
     logAverageFrame(timesToUpdatePosition);
   }
-  // window.animating = false;
 }
 
 // runs updatePositions on scroll
@@ -539,6 +529,8 @@ window.addEventListener('scroll', updatePositions);
 document.addEventListener('DOMContentLoaded', function() {
   var cols = 8;
   var s = 256;
+
+  // To count the pizza number in the screen to reduce the iteration
   var rows = Math.floor(window.screen.height/s);
   var numBGPizzas = rows*cols;
   var movingPizzas1 = document.getElementById('movingPizzas1');
