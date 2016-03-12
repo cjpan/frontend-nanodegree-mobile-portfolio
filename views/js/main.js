@@ -422,7 +422,8 @@ var resizePizzas = function(size) {
   changeSliderLabel(size);
 
   // Iterates through pizza elements on the page and changes their widths
-  // use relative width to simplify the width calculation in the loop
+  // Use percentage width directly to replace the calculation of dx in each iteration, 
+  // thus reduce the layout calculation
   function changePizzaSizes(size) {
     var newwidth = 0;
 
